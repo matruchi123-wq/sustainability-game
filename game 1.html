@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sustainability Sort</title>
+  <style>
+    :root {
+      --bg: #f5f7f5;
+      --card: #ffffff;
+      --text: #1f2a1f;
+      --muted: #5d6b5d;
+      --accent: #2f7d32;
+      --accent-2: #d32f2f;
+      --bin-blue: #1976d2;
+      --bin-green: #2e7d32;
+      --bin-brown: #8d6e63;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f6faf6 0%, #eef4ee 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 0.98rem;
+    }
+
+    .start {
+      margin-top: 14px;
+      border: none;
+      background: #1f2a1f;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: #f1f5f1;
+      border-radius: 14px;
+      padding: 12px 16px;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: #f8fbf8;
+      border: 2px dashed #dbe8db;
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .item-emoji {
+      font-size: 4rem;
+      margin-bottom: 10px;
+    }
+
+    .item-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .item-hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .bins {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .bin {
+      border: none;
+      border-radius: 18px;
+      padding: 18px 14px;
+      color: white;
+      cursor: pointer;
+      min-height: 130px;
+      font-size: 1rem;
+    }
+
+    .bin .emoji {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .bin small {
+      display: block;
+      margin-top: 6px;
+      opacity: 0.92;
+      line-height: 1.4;
+    }
+
+    .recycling { background: var(--bin-blue); }
+    .organic { background: var(--bin-green); }
+    .general { background: var(--bin-brown); }
+
+    .message {
+      margin-top: 16px;
+      min-height: 28px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .message.ok { color: var(--accent); }
+    .message.bad { color: var(--accent-2); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .tip {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .restart {
+      border: none;
+      background: #1f2a1f;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .result {
+      text-align: center;
+      padding: 18px;
+      border-radius: 16px;
+      background: #f4faf4;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 12px;
+        align-items: flex-start;
+      }
+
+      .app {
+        padding: 18px;
+      }
+
+      .bins {
+        grid-template-columns: 1fr;
+      }
+
+      h1 { font-size: 1.6rem; }
+      .item-emoji { font-size: 3.2rem; }
+
+      .bin {
+        min-height: 115px;
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div>
+        <h1>Sustainability Sort</h1>
+        <div class="subtitle">Tap Start Game, then place each item in the correct bin before time runs out.</div>
+        <button class="start" id="startBtn">Start Game</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">Score</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="time">30</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Round</span>
+          <span class="stat-value" id="round">1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="card">
+        <div class="item-emoji" id="itemEmoji">🌍</div>
+        <div class="item-name" id="itemName">Press Start Game</div>
+        <div class="item-hint">Choose the right bin.</div>
+      </div>
+
+      <div class="bins">
+        <button class="bin recycling" onclick="submitAnswer('recycling')">
+          <span class="emoji">♻️</span>
+          Recycling
+          <small>Paper, cardboard, clean plastic, cans</small>
+        </button>
+
+        <button class="bin organic" onclick="submitAnswer('organic')">
+          <span class="emoji">🍃</span>
+          Organic
+          <small>Food scraps, fruit peels, coffee grounds</small>
+        </button>
+
+        <button class="bin general" onclick="submitAnswer('general')">
+          <span class="emoji">🗑️</span>
+          General Waste
+          <small>Mixed or non-recyclable items</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="message" id="message"></div>
+    <div id="resultBox"></div>
+
+    <div class="footer">
+      <div class="tip">Tip: clean recyclables usually go in the recycling bin.</div>
+      <button class="restart" onclick="startGame()">Restart game</button>
+    </div>
+  </div>
+
+  <script>
+    const items = [
+      { name: 'Plastic Bottle', emoji: '🥤', bin: 'recycling' },
+      { name: 'Banana Peel', emoji: '🍌', bin: 'organic' },
+      { name: 'Coffee Cup Lid', emoji: '🥛', bin: 'general' },
+      { name: 'Newspaper', emoji: '📰', bin: 'recycling' },
+      { name: 'Apple Core', emoji: '🍎', bin: 'organic' },
+      { name: 'Chip Packet', emoji: '🍟', bin: 'general' },
+      { name: 'Cardboard Box', emoji: '📦', bin: 'recycling' },
+      { name: 'Tea Bag', emoji: '🫖', bin: 'organic' },
+      { name: 'Broken Pen', emoji: '🖊️', bin: 'general' },
+      { name: 'Aluminium Can', emoji: '🥫', bin: 'recycling' },
+      { name: 'Glass Bottle', emoji: '🍾', bin: 'recycling' },
+      { name: 'Pizza Box (clean)', emoji: '🍕', bin: 'recycling' },
+      { name: 'Pizza Box (greasy)', emoji: '🍕', bin: 'general' },
+      { name: 'Egg Shells', emoji: '🥚', bin: 'organic' },
+      { name: 'Orange Peel', emoji: '🍊', bin: 'organic' },
+      { name: 'Paper Cup', emoji: '☕', bin: 'general' },
+      { name: 'Plastic Bag', emoji: '🛍️', bin: 'general' },
+      { name: 'Magazine', emoji: '📖', bin: 'recycling' },
+      { name: 'Leftover Food', emoji: '🍽️', bin: 'organic' },
+      { name: 'Yogurt Pot (clean)', emoji: '🥣', bin: 'recycling' },
+      { name: 'Yogurt Pot (dirty)', emoji: '🥣', bin: 'general' },
+      { name: 'Tin Can', emoji: '🥫', bin: 'recycling' },
+      { name: 'Dry Leaves', emoji: '🍂', bin: 'organic' },
+      { name: 'Styrofoam', emoji: '📦', bin: 'general' },
+      { name: 'Office Paper', emoji: '📄', bin: 'recycling' }
+    ];
+
+    let score = 0;
+    let timeLeft = 30;
+    let round = 1;
+    let timer = null;
+    let currentItem = null;
+    let availableItems = [];
+    let gameOver = true;
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function updateStats() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('time').textContent = timeLeft;
+      document.getElementById('round').textContent = round;
+    }
+
+    function showNextItem() {
+      if (availableItems.length === 0) {
+        availableItems = shuffle(items);
+      }
+
+      currentItem = availableItems.pop();
+      document.getElementById('itemEmoji').textContent = currentItem.emoji;
+      document.getElementById('itemName').textContent = currentItem.name;
+    }
+
+    function setMessage(text, type = '') {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = 'message ' + type;
+    }
+
+    function submitAnswer(choice) {
+      if (gameOver || !currentItem) return;
+
+      if (choice === currentItem.bin) {
+        score += 10;
+        setMessage('Correct! Great sustainable choice.', 'ok');
+      } else {
+        score = Math.max(0, score - 5);
+        const correctLabel = currentItem.bin === 'recycling' ? 'Recycling' : currentItem.bin === 'organic' ? 'Organic' : 'General Waste';
+        setMessage('Not quite. The correct answer was ' + correctLabel + '.', 'bad');
+      }
+
+      round += 1;
+      updateStats();
+      showNextItem();
+    }
+
+    function finishGame() {
+      gameOver = true;
+      clearInterval(timer);
+      currentItem = null;
+
+      document.getElementById('itemEmoji').textContent = '🌍';
+      document.getElementById('itemName').textContent = 'Time’s up!';
+
+      document.getElementById('resultBox').innerHTML = `
+        <div class="result">
+          <h2 style="margin-top:0;">Final Score: ${score}</h2>
+          <p style="margin-bottom:0; color:#5d6b5d;">Nice work. Every correct choice helps build better habits.</p>
+        </div>
+      `;
+
+      setMessage('Game finished. Press restart to play again.');
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      round = 1;
+      gameOver = false;
+      availableItems = shuffle(items);
+
+      document.getElementById('resultBox').innerHTML = '';
+      setMessage('');
+      updateStats();
+      showNextItem();
+
+      clearInterval(timer);
+
+      timer = setInterval(() => {
+        timeLeft -= 1;
+        updateStats();
+
+        if (timeLeft <= 0) {
+          finishGame();
+        }
+      }, 1000);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startGame);
+  </script>
+</body>
+</html>
